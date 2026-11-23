@@ -77,6 +77,7 @@ step "Nginx"
 install -d -m 0755 -o root -g adm /var/log/ixseal
 install -d -m 0755 /var/www/acme
 install -m 0644 "$APP_DIR/deploy/nginx/ixseal-proxy.conf" /etc/nginx/snippets/ixseal-proxy.conf
+install -m 0644 "$APP_DIR/deploy/nginx/ixseal-tls.conf" /etc/nginx/snippets/ixseal-tls.conf
 sed -e "s|__SERVER_NAME__|$SERVER_NAME|g" -e "s|__APP_DIR__|$APP_DIR|g" \
   "$APP_DIR/deploy/nginx/ixseal.conf" > /etc/nginx/sites-available/ixseal
 ln -sf /etc/nginx/sites-available/ixseal /etc/nginx/sites-enabled/ixseal
