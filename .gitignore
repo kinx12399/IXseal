@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+# 로컬 개발용 KEK·DB 데이터
+/local/

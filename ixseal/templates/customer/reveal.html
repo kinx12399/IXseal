@@ -1,0 +1,6 @@
+{% extends "customer/base.html" %}
+{% import "customer/_macros.html" as m %}
+{% block main %}
+{% if once %}{{ m.once_banner(has_session and v.has_files, session_minutes) }}{% endif %}
+{{ m.reveal_card(v, token) }}
+{% endblock %}

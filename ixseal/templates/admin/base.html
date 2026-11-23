@@ -1,0 +1,43 @@
+{% import "customer/_macros.html" as cm %}
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}IXseal 관리{% endblock %}</title>
+<link rel="icon" href="/static/img/favicon.svg?v={{ v_asset }}" type="image/svg+xml">
+<link rel="stylesheet" href="/static/fonts/pretendard/pretendard.css">
+<link rel="stylesheet" href="/static/css/ixseal.css?v={{ v_asset }}">
+<script src="/static/js/customer.js?v={{ v_asset }}" defer></script>
+<script src="/static/js/admin.js?v={{ v_asset }}" defer></script>
+</head>
+<body data-page="{% block page %}{% endblock %}" data-sprite="/static/img/icons.svg?v={{ v_asset }}">
+<header class="a-top">
+  <a class="logo" href="/secrets">{{ cm.mark() }}<span class="word">IX<span>seal</span></span><small>관리</small></a>
+  <nav class="a-nav" aria-label="주 메뉴">
+    <a href="/secrets" class="{{ 'on' if active == 'list' }}">전달 목록</a>
+    <a href="/secrets/new" class="{{ 'on' if active == 'new' }}">새 전달</a>
+    <a href="/templates" class="{{ 'on' if active == 'tpl' }}">템플릿</a>
+  </nav>
+  <div class="a-right">
+    {% if settings.env_label %}<span class="env">{{ settings.env_label }}</span>{% endif %}
+    <button type="button" class="owner-btn" id="owner-btn" title="담당자 이름 변경">{{ icon('i-user', 'sm') }}<span>담당자</span> <b id="owner-name">…</b></button>
+  </div>
+</header>
+<main class="a-main">{% block main %}{% endblock %}</main>
+
+<dialog class="dlg" id="owner-dialog">
+  <form method="dialog" class="dlg-body">
+    <h2>담당자 이름</h2>
+    <p class="desc">전달·템플릿 기록과 고객 화면의 ‘보낸 사람’에 표시됩니다. 이 브라우저에 기억됩니다.</p>
+    <input class="input" id="owner-input" maxlength="40" placeholder="예: 홍길동" autocomplete="name">
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" formnovalidate>취소</button>
+      <button class="btn primary" value="ok">저장</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite">{{ icon('i-check') }}<span></span></div>
+</body>
+</html>

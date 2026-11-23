@@ -1,0 +1,4 @@
+# 서버에서 쓰는 파일은 항상 LF (Windows에서 체크아웃해도 깨지지 않게)
+* text=auto eol=lf
+*.woff2 binary
+*.png binary

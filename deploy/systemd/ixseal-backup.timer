@@ -1,0 +1,10 @@
+[Unit]
+Description=IXseal DB 백업 매일 03:30
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

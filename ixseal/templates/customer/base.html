@@ -1,0 +1,22 @@
+{% import "customer/_macros.html" as m %}
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>IXseal · IXcloud 계정정보 전달</title>
+<link rel="icon" href="/static/img/favicon.svg?v={{ v_asset }}" type="image/svg+xml">
+<link rel="stylesheet" href="/static/fonts/pretendard/pretendard.css">
+<link rel="stylesheet" href="/static/css/ixseal.css?v={{ v_asset }}">
+<script src="/static/js/customer.js?v={{ v_asset }}" defer></script>
+</head>
+<body>
+<div class="c-wrap">
+  {{ m.header() }}
+  <main class="c-main">{% block main %}{% endblock %}</main>
+  {{ m.footer() }}
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite">{{ icon('i-check') }}<span></span></div>
+</body>
+</html>

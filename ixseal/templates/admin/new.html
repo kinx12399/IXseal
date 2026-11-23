@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% block page %}new{% endblock %}
+{% block title %}새 전달 · IXseal 관리{% endblock %}
+{% block main %}
+<script type="application/json" id="boot">{{ boot|safe }}</script>
+<div id="new-app">
+  <div class="a-title"><div><h1>새 전달</h1><div class="sub">봉인한 뒤에는 엔지니어 화면에서도 내용을 다시 볼 수 없습니다.</div></div></div>
+  <div class="form-grid">
+    <div class="stack" id="new-form"></div>
+    <aside class="pv-wrap" aria-label="고객 화면 미리보기">
+      <div class="pv-head"><h2>{{ icon('i-phone') }}고객 화면 미리보기</h2><div class="seg sm" id="pv-seg"></div></div>
+      <div class="device"><div class="url">{{ icon('i-lock') }}{{ settings.public_base_url|replace('https://', '') }}/s/••••••••</div><div class="scroll" id="pv"></div></div>
+      <p class="pv-note">입력하는 내용이 바로 반영됩니다. 가림 항목은 고객 화면에서도 가려진 채로 시작합니다.</p>
+    </aside>
+  </div>
+</div>
+<input type="file" id="pick-input" hidden>
+<input type="file" id="attach-input" multiple hidden>
+{% endblock %}

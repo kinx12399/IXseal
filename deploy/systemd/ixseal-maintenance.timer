@@ -1,0 +1,10 @@
+[Unit]
+Description=IXseal 정리 작업 5분마다
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

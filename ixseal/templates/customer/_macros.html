@@ -1,0 +1,159 @@
+{# 고객 화면 조각. 실제 화면(v.mode == 'real')과 관리 화면 미리보기(v.preview)가 함께 쓴다. #}
+
+{% macro mark() %}<svg class="mark" aria-hidden="true"><use href="/static/img/icons.svg?v={{ v_asset }}#seal"/></svg>{% endmacro %}
+
+{% macro header() %}
+<header class="c-head">
+  <span class="logo">{{ mark() }}<span class="word">IX<span>seal</span></span></span>
+  <span class="by">IXcloud 계정정보 전달</span>
+</header>
+{% endmacro %}
+
+{% macro footer() %}
+<footer class="c-foot">
+  <div class="c-help">{{ icon('i-mail', 'sm') }}<span>문의사항은 <b>Cloud 헬프데스크</b>(<a href="mailto:{{ settings.helpdesk_email }}">{{ settings.helpdesk_email }}</a>)로 메일 보내 주세요.</span></div>
+  <div class="c-brand"><b>IXcloud</b> by KINX</div>
+</footer>
+{% endmacro %}
+
+{% macro policy_note(policy) %}
+{% if policy == 'one_time' %}
+<div class="callout warn">{{ icon('i-alert') }}<div><b>한 번만 볼 수 있습니다.</b> [계정정보 보기]를 누르면 바로 폐기되니, 옮겨 적을 준비가 되었을 때 눌러 주세요.</div></div>
+{% elif policy == 'until_confirmed' %}
+<div class="callout info">{{ icon('i-info') }}<div>기한 안에는 여러 번 볼 수 있습니다. 계정정보를 옮겨 두신 뒤 <b>[확인 완료]</b>를 누르면 즉시 폐기됩니다.</div></div>
+{% else %}
+<div class="callout info">{{ icon('i-info') }}<div>기한 안에는 여러 번 볼 수 있습니다.</div></div>
+{% endif %}
+{% endmacro %}
+
+{% macro landing_card(v, token=None) %}
+<div class="card c-card">
+  <div class="seal-hero">{{ icon('i-shield') }}</div>
+  <div class="eyebrow">{{ v.customer or '고객명' }} 님께 전달된 계정정보</div>
+  <h1 class="c-title">{{ v.title or '제목' }}</h1>
+  <dl class="meta">
+    <div><dt>보낸 사람</dt><dd>IXcloud {{ v.owner }}</dd></div>
+    <div><dt>열람 가능 기한</dt><dd class="num">{{ v.expires_at|md_hm }} <span class="left" data-expires="{{ v.expires_at.isoformat() }}">· {{ v.remaining }} 남음</span></dd></div>
+    <div><dt>열람 방식</dt><dd><span class="chip brand">{{ icon(v.policy_icon, 'sm') }}{{ v.policy_chip }}</span></dd></div>
+  </dl>
+  {{ policy_note(v.policy) }}
+  {% if v.preview %}
+  <button type="button" class="btn primary lg block mt-20" data-pv="reveal">{{ icon('i-unlock') }}계정정보 보기</button>
+  {% else %}
+  <form method="post" action="/s/{{ token }}/reveal" class="mt-20">
+    <button type="submit" class="btn primary lg block">{{ icon('i-unlock') }}계정정보 보기</button>
+  </form>
+  {% endif %}
+  <p class="c-note">이 링크는 받으신 분만 사용해 주세요. 다른 사람에게 전달하지 마세요.</p>
+</div>
+{% endmacro %}
+
+{% macro download(file, v, token) %}
+{% if v.preview %}
+<span class="btn sm is-disabled">{{ icon('i-download', 'sm') }}받기</span>
+{% else %}
+<a class="btn sm" href="/s/{{ token }}/files/{{ file.id }}" download>{{ icon('i-download', 'sm') }}받기</a>
+{% endif %}
+{% endmacro %}
+
+{% macro field(f, v, token) %}
+<div class="item">
+  <div class="k">{{ f.label or '항목' }}</div>
+  {% if f.empty %}
+  <div class="v"><code class="empty">{{ v.empty_text(f) }}</code></div>
+  {% elif f.type == 'file' %}
+  <div class="v file-v"><span class="ext">{{ f.file.badge }}</span><span class="fname"><b>{{ f.file.name }}</b><small>{{ f.file.size_text }}</small></span>{{ download(f.file, v, token) }}</div>
+  {% elif f.type == 'secret' %}
+  <div class="v secret"><code><span class="mask" aria-hidden="true">••••••••••••</span><span class="real">{{ f.value }}</span></code>
+    <button type="button" class="iconbtn" data-reveal aria-label="보기">{{ icon('i-eye') }}</button>
+    <button type="button" class="iconbtn" data-copy aria-label="복사">{{ icon('i-copy') }}</button>
+  </div>
+  {% else %}
+  <div class="v"><code class="real{{ ' multi' if f.type == 'multi' }}">{{ f.value }}</code>
+    {% if f.is_link %}<a class="iconbtn" href="{{ f.value }}" target="_blank" rel="noopener noreferrer" aria-label="새 창에서 열기">{{ icon('i-external') }}</a>{% endif %}
+    <button type="button" class="iconbtn" data-copy aria-label="복사">{{ icon('i-copy') }}</button>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro reveal_card(v, token=None) %}
+<div class="card c-card">
+  <div class="rv-head">
+    <div>
+      <h1 class="c-title rv">{{ v.title or '제목' }}</h1>
+      <div class="sub">{{ v.customer or '고객명' }} · IXcloud {{ v.owner }}</div>
+    </div>
+    {% if v.policy != 'one_time' %}
+    <span class="chip num">{{ icon('i-clock', 'sm') }}<span data-expires="{{ v.expires_at.isoformat() }}" data-short>{{ v.remaining }}</span></span>
+    {% endif %}
+  </div>
+
+  {% for s in v.sections %}
+  <section class="grp">
+    <h2 class="grp-t">{{ s.title }}</h2>
+    {% if s.repeat %}
+      {% for inst in s.instances %}
+      <div class="inst">
+        <div class="inst-t">{{ s.unit }} {{ inst.no }}{% if inst.title_value %} · {{ inst.title_value }}{% endif %}</div>
+        <div class="items">{% for f in inst.fields %}{{ field(f, v, token) }}{% endfor %}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="items">{% for inst in s.instances %}{% for f in inst.fields %}{{ field(f, v, token) }}{% endfor %}{% endfor %}</div>
+    {% endif %}
+    {% for n in s.notices %}
+    <div class="callout {{ 'warn' if n.tone == 'warn' else 'info' }}">{{ icon('i-alert' if n.tone == 'warn' else 'i-info') }}<div>{{ n.text|linkify }}</div></div>
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  {% if v.attachments %}
+  <div class="sec-title">첨부 파일 <span class="t-sub">{{ v.attachments|length }}개</span></div>
+  <div class="files">
+    {% for f in v.attachments %}
+    <div class="file"><div class="ext">{{ f.badge }}</div><div class="nm"><div>{{ f.name }}</div><small>{{ f.size_text }}</small></div>{{ download(f, v, token) }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if v.policy == 'until_confirmed' %}
+  <div class="destroy">
+    <p>계정정보를 안전한 곳에 옮겨 두셨나요?</p>
+    {% if v.preview %}
+    <span class="btn danger is-disabled">{{ icon('i-flame', 'sm') }}확인 완료 · 지금 폐기</span>
+    {% else %}
+    <form method="post" action="/s/{{ token }}/destroy" data-confirm="폐기하면 이 링크로 다시 볼 수 없습니다.&#10;계정정보를 안전한 곳에 옮겨 두셨나요?">
+      <button type="submit" class="btn danger">{{ icon('i-flame', 'sm') }}확인 완료 · 지금 폐기</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro once_banner(has_files, minutes) %}
+<div class="once-banner">{{ icon('i-flame') }}<div><b>1회 열람용 링크로, 이미 폐기 처리되었습니다.</b><br>이 창을 닫거나 새로고침하면 다시 볼 수 없습니다.{% if has_files %} 파일은 <b class="num" data-countdown="{{ minutes * 60 }}">{{ minutes }}:00</b> 동안 받을 수 있습니다.{% endif %}</div></div>
+{% endmacro %}
+
+{% macro gone_card(kind) %}
+<div class="card c-card gone-card">
+  {% if kind == 'destroyed' %}
+  <div class="seal-hero center">{{ icon('i-shield') }}</div>
+  <h1 class="c-title">계정정보를 폐기했습니다</h1>
+  <p>이 링크로는 더 이상 열람할 수 없습니다.<br>안전하게 옮겨 두셨다면 창을 닫으셔도 됩니다.</p>
+  {% elif kind == 'file' %}
+  <div class="seal-hero dim center">{{ icon('i-file') }}</div>
+  <h1 class="c-title">파일을 받을 수 없습니다</h1>
+  <p>받을 수 있는 시간이 지났거나 링크가 만료되었습니다.<br>링크를 다시 열어 [계정정보 보기]를 누른 뒤 받아 주세요.</p>
+  {% elif kind == 'notfound' %}
+  <div class="seal-hero dim center">{{ icon('i-shield-off') }}</div>
+  <h1 class="c-title">페이지를 찾을 수 없습니다</h1>
+  <p>받으신 링크 주소를 다시 확인해 주세요.</p>
+  {% else %}
+  <div class="seal-hero dim center">{{ icon('i-shield-off') }}</div>
+  <h1 class="c-title">열람할 수 없는 링크입니다</h1>
+  <p>기한이 지났거나 이미 폐기된 계정정보입니다.<br>다시 받으셔야 하면 아래 헬프데스크나 담당 엔지니어에게 재발급을 요청해 주세요.</p>
+  {% endif %}
+</div>
+{% endmacro %}

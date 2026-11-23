@@ -1,0 +1,14 @@
+{# 관리 화면 미리보기 조각 (html/body 없음). 실제 고객 화면과 같은 매크로를 쓴다. #}
+{% import "customer/_macros.html" as m %}
+<div class="c-wrap">
+  {{ m.header() }}
+  <main class="c-main">
+    {% if view == 'landing' %}
+    {{ m.landing_card(v) }}
+    {% else %}
+    {% if v.policy == 'one_time' %}{{ m.once_banner(v.has_files, settings.reveal_session_minutes) }}{% endif %}
+    {{ m.reveal_card(v) }}
+    {% endif %}
+  </main>
+  {{ m.footer() }}
+</div>

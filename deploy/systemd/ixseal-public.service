@@ -1,0 +1,33 @@
+[Unit]
+Description=IXseal 고객용 앱 (127.0.0.1:8001)
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+User=ixseal
+Group=ixseal
+WorkingDirectory=/opt/ixseal/app
+EnvironmentFile=/etc/ixseal/ixseal.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/ixseal/venv/bin/uvicorn ixseal.public_app:app --host 127.0.0.1 --port 8001 --workers 2 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-server-header
+Restart=on-failure
+RestartSec=3
+
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

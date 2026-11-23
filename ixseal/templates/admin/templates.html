@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block page %}templates{% endblock %}
+{% block title %}템플릿 · IXseal 관리{% endblock %}
+{% block main %}
+<div class="a-title">
+  <div><h1>템플릿</h1><div class="sub">전달 양식을 자유롭게 만들고 고칠 수 있습니다. 바꿔도 이미 보낸 전달에는 영향이 없습니다.</div></div>
+  <a class="btn primary" href="/templates/new">{{ icon('i-plus') }}새 템플릿</a>
+</div>
+<div class="tgrid">
+  {% for t in rows %}
+  <div class="card tcard">
+    <div class="tcard-h"><h3>{{ t.name }}</h3><span class="t-sub">{{ t.used_count }}회 사용</span></div>
+    {% if t.description %}<p>{{ t.description }}</p>{% endif %}
+    <div class="tstruct">
+      {% for s in t.sections %}
+      <span class="chip sm">{{ s.title or '섹션' }}{% if s.repeat %} · {{ s.unit or '항목' }} 여러 개{% endif %} · {{ s.fields|length }}항목</span>
+      {% endfor %}
+    </div>
+    <div class="tmeta">{{ icon('i-clock', 'sm') }}{{ EXPIRY_LABEL.get(t.default_expiry, t.default_expiry) }} · {{ POLICY_LABEL.get(t.default_policy, t.default_policy) }}</div>
+    <div class="tfoot">
+      <span>{{ clock.relative(t.updated_at) }} · {{ t.updated_by }}</span>
+      <div>
+        <a class="btn sm ghost" href="/secrets/new?template={{ t.id }}" title="이 템플릿으로 새 전달">{{ icon('i-send', 'sm') }}사용</a>
+        <button type="button" class="btn sm" data-act="dup" data-id="{{ t.id }}">복제</button>
+        <a class="btn sm" href="/templates/{{ t.id }}/edit">편집</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <a class="card tcard new" href="/templates/new">{{ icon('i-plus') }}새 템플릿 만들기</a>
+</div>
+{% endblock %}

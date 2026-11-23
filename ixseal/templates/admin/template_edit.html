@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block page %}template-edit{% endblock %}
+{% block title %}템플릿 편집 · IXseal 관리{% endblock %}
+{% block main %}
+<script type="application/json" id="boot">{{ boot|safe }}</script>
+<div class="a-title">
+  <div><h1 id="tpl-title">템플릿 편집</h1><div class="sub">비밀번호·키 파일 같은 비밀 값은 템플릿에 기본값으로 저장할 수 없습니다.</div></div>
+  <div class="acts">
+    <button type="button" class="btn danger" data-act="t-archive" hidden id="tpl-archive">{{ icon('i-trash', 'sm') }}삭제</button>
+    <a class="btn" href="/templates">취소</a>
+    <button type="button" class="btn primary" data-act="t-save">{{ icon('i-check', 'sm') }}저장</button>
+  </div>
+</div>
+<div class="form-grid">
+  <div class="stack" id="tpl-form"></div>
+  <aside class="pv-wrap" aria-label="고객 화면 미리보기">
+    <div class="pv-head"><h2>{{ icon('i-phone') }}고객 화면 미리보기</h2><div class="seg sm" id="pv-seg"></div></div>
+    <div class="device"><div class="url">{{ icon('i-lock') }}{{ settings.public_base_url|replace('https://', '') }}/s/••••••••</div><div class="scroll" id="pv"></div></div>
+    <p class="pv-note">기본값이 없는 항목은 ‘등록 시 입력’으로 표시됩니다.</p>
+  </aside>
+</div>
+{% endblock %}

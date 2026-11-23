@@ -1,0 +1,9 @@
+[project]
+name = "ixseal"
+version = "0.1.0"
+description = "IXcloud 계정정보 봉인 전달 서비스"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

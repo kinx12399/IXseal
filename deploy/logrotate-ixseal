@@ -1,0 +1,15 @@
+# /etc/logrotate.d/ixseal — 접속 기록 2년 보관 (개인정보의 안전성 확보조치 기준 제8조, docs/DESIGN.md §11)
+/var/log/ixseal/*.log {
+    daily
+    rotate 730
+    missingok
+    notifempty
+    compress
+    delaycompress
+    dateext
+    create 0640 www-data adm
+    sharedscripts
+    postrotate
+        [ -s /run/nginx.pid ] && kill -USR1 "$(cat /run/nginx.pid)"
+    endscript
+}

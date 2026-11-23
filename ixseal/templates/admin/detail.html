@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block page %}detail{% endblock %}
+{% block title %}{{ s.title }} · IXseal 관리{% endblock %}
+{% block main %}
+<div class="a-title" data-secret-id="{{ s.id }}">
+  <div>
+    <div class="row"><h1>{{ s.title }}</h1><span class="badge {{ s.ui_status }}">{{ STATUS_LABEL[s.ui_status] }}</span></div>
+    <div class="sub">{{ s.customer_name }}{% if s.ticket_ref %} · {{ s.ticket_ref }}{% endif %}</div>
+  </div>
+  <div class="acts">
+    {% if s.ui_status in ('wait', 'viewed') %}
+    <button type="button" class="btn" data-act="reissue">{{ icon('i-refresh', 'sm') }}재발급</button>
+    {% endif %}
+    {% if s.status != 'purged' %}
+    <button type="button" class="btn danger" data-act="revoke">{{ icon('i-ban', 'sm') }}회수</button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="card panel">
+    <h2 class="mb-16">정보</h2>
+    <dl class="kv">
+      <div><dt>담당자</dt><dd>{{ s.owner_name }}</dd></div>
+      <div><dt>템플릿</dt><dd>{{ s.template_name or '-' }}</dd></div>
+      <div><dt>폐기 방식</dt><dd>{{ POLICY_LABEL[s.policy] }}</dd></div>
+      <div><dt>생성</dt><dd class="num">{{ clock.md_hm(s.created_at) }}</dd></div>
+      {% if s.status == 'purged' %}
+      <div><dt>폐기</dt><dd class="num">{{ clock.md_hm(s.purged_at) }}</dd></div>
+      {% else %}
+      <div><dt>폐기 예정</dt><dd class="num">{{ clock.md_hm(s.expires_at) }} <span class="c-ok">({{ s.expires_at|remaining }})</span></dd></div>
+      {% endif %}
+      <div><dt>열람 횟수</dt><dd class="num">{{ s.view_count }}회</dd></div>
+      <div><dt>첫 열람</dt><dd class="num">{{ clock.md_hm(s.first_viewed_at) }}</dd></div>
+      <div><dt>내용</dt><dd>섹션 {{ s.section_count }} · 항목 {{ s.field_count }} · 파일 {{ s.file_count }} <span class="t-sub">{{ '(봉인됨)' if s.status != 'purged' else '(삭제됨)' }}</span></dd></div>
+    </dl>
+  </div>
+  <div class="card panel">
+    <h2 class="mb-16">활동 기록</h2>
+    {% if logs %}
+    <ul class="tl">
+      {% for l in logs %}
+      {% set dim = l.event == 'landing' %}
+      <li>
+        <span class="dot {{ 'brand' if l.event in ('revealed', 'file_downloaded') else 'ink' if l.event in ('created', 'reissued') else 'danger' if l.event in ('revoked',) else '' }}"></span>
+        <div>
+          <div class="ev{{ ' dim' if dim }}">{{ EVENT_LABEL.get(l.event, l.event) }}{% if l.event == 'file_downloaded' and l.detail %} · {{ l.detail }}{% endif %}{% if l.event == 'landing' and l.detail == 'auto' %} · 메일 보안 검사 등 자동 접속으로 추정{% endif %}</div>
+          <div class="who">{{ l.actor|actor }}{% if l.ip %} · <span class="ip">{{ l.ip }}</span>{% endif %}{% if l.user_agent %} · {{ l.user_agent|ua_short }}{% endif %}</div>
+        </div>
+        <time class="num" datetime="{{ l.at.isoformat() }}">{{ clock.md_hm(l.at) }}</time>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state">기록이 없습니다.</div>
+    {% endif %}
+  </div>
+</div>
+
+<dialog class="dlg wide" id="link-dialog">
+  <div class="dlg-body">
+    <h2>새 링크를 만들었습니다</h2>
+    <div class="callout warn mt-14">{{ icon('i-alert') }}<div><b>기존 링크는 더 이상 열리지 않습니다.</b> 이 링크는 지금 한 번만 표시됩니다.</div></div>
+    <label class="field-label mt-16" for="ld-link">고객용 링크</label>
+    <div class="linkbox"><input class="input" id="ld-link" readonly><button type="button" class="btn primary" data-copy-from="#ld-link">{{ icon('i-copy') }}링크 복사</button></div>
+    <label class="field-label mt-16" for="ld-mail">메일 안내문</label>
+    <textarea class="mailbox" id="ld-mail" readonly rows="12"></textarea>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-copy-from="#ld-mail">{{ icon('i-mail', 'sm') }}메일 문구 복사</button>
+      <button type="button" class="btn primary" data-reload>닫기</button>
+    </div>
+  </div>
+</dialog>
+{% endblock %}
